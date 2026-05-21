@@ -79,16 +79,16 @@ def _make_file_sandbox_readable(file_path: os.PathLike[str] | str) -> None:
 
     For Docker sandboxes (AIO), the gateway writes files as root with 0o600
     permissions, then bind-mounts the host directory into the container. The
-    sandbox process inside the container runs as a non-root user and cannot
-    read those files without group/other read bits. This function adds
-    ``S_IRGRP | S_IROTH`` so the sandbox can read the uploaded content.
+    sandbox process inside the container runs as a non-root user and may be
+    unable to read those files without broader read access. To avoid making
+    uploads world-readable on the host, only the group read bit is added here.
     """
     file_stat = os.lstat(file_path)
     if stat.S_ISLNK(file_stat.st_mode):
         logger.warning("Skipping sandbox chmod for symlinked upload path: %s", file_path)
         return
 
-    readable_mode = stat.S_IMODE(file_stat.st_mode) | stat.S_IRGRP | stat.S_IROTH
+    readable_mode = stat.S_IMODE(file_stat.st_mode) | stat.S_IRGRP
     chmod_kwargs = {"follow_symlinks": False} if os.chmod in os.supports_follow_symlinks else {}
     os.chmod(file_path, readable_mode, **chmod_kwargs)
 
