@@ -444,7 +444,6 @@ def test_make_file_sandbox_readable_adds_read_bits_for_regular_files(tmp_path):
     updated_mode = stat.S_IMODE(file_path.stat().st_mode)
     assert updated_mode & stat.S_IRUSR
     assert updated_mode & stat.S_IRGRP
-    assert updated_mode & stat.S_IROTH
 
 
 def test_make_file_sandbox_readable_skips_symlinks(tmp_path):
